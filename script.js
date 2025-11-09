@@ -1,6 +1,6 @@
 // Enhanced JavaScript for Portfolio Website
 document.addEventListener('DOMContentLoaded', function() {
-    // DOM Elements
+    
     const header = document.querySelector('header');
     const navbar = document.querySelector('.navbar');
     const navLinks = document.querySelectorAll('.nav-link');
@@ -12,13 +12,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const aboutBtn = document.querySelector('.about-btn');
     const socialIcons = document.querySelectorAll('.social-icon');
 
-    // Professions for typewriter effect
+    
     const professions = [
         'Frontend developer', 
         'Web Enthusiast',
     ];
 
-    // Typewriter Effect
+    
     let professionIndex = 0;
     let charIndex = 0;
     let isDeleting = false;
@@ -40,25 +40,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (!isDeleting && charIndex === currentProfession.length) {
-            typingSpeed = 2000; // Pause at end
+            typingSpeed = 2000;
             isDeleting = true;
         } else if (isDeleting && charIndex === 0) {
             isDeleting = false;
             professionIndex = (professionIndex + 1) % professions.length;
-            typingSpeed = 500; // Pause before next word
+            typingSpeed = 500; 
         }
 
         setTimeout(typeWriter, typingSpeed);
     }
 
-    // Mobile Menu Toggle
+    
     function toggleMobileMenu() {
         hamburger?.classList.toggle('active');
         navMenu?.classList.toggle('active');
         document.body.style.overflow = navMenu?.classList.contains('active') ? 'hidden' : 'auto';
     }
 
-    // Smooth Scroll Navigation
+    
     function smoothScroll(event) {
         event.preventDefault();
         const targetId = this.getAttribute('href');
@@ -75,18 +75,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     behavior: 'smooth'
                 });
 
-                // Close mobile menu
+                
                 if (navMenu?.classList.contains('active')) {
                     toggleMobileMenu();
                 }
 
-                // Update active state
+                
                 updateActiveNavLink(targetId);
             }
         }
     }
 
-    // Update Active Navigation Link
+    
     function updateActiveNavLink(activeId) {
         navLinks.forEach(link => {
             link.classList.remove('active');
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Scroll-based Header Effects
+    
     function handleScroll() {
         const scrollY = window.scrollY;
         
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Scroll-based Active Navigation
+    
     function updateActiveNavFromScroll() {
         const sections = document.querySelectorAll('section[id]');
         const scrollPosition = window.scrollY + (header?.offsetHeight || 80);
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const id = '#' + activeSection.getAttribute('id');
             updateActiveNavLink(id);
             
-            // Update URL hash
+            
             if (history.pushState) {
                 history.pushState(null, null, id);
             }
@@ -134,21 +134,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Throttled scroll listener
+    
     let scrollTimeout;
     window.addEventListener('scroll', () => {
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(updateActiveNavFromScroll, 50);
     });
 
-    // Intersection Observer for Animations
+    
     const animationObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.style.opacity = '1';
                 entry.target.style.transform = 'translateY(0)';
                 
-                // Add stagger effect for multiple elements
+                
                 const siblings = entry.target.parentElement?.querySelectorAll('.animate-on-scroll');
                 if (siblings && siblings.length > 1) {
                     siblings.forEach((sibling, index) => {
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
         rootMargin: '0px 0px -50px 0px'
     });
 
-    // Setup animations for elements
+    
     function setupAnimations() {
         const animatedElements = document.querySelectorAll(
             '.hero-stats .stat, .about-highlights .highlight, .floating-card, .social-icon'
@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Button Click Handlers
+    
     function handleButtonClick(event) {
         const button = event.currentTarget;
         const ripple = document.createElement('span');
@@ -201,14 +201,14 @@ document.addEventListener('DOMContentLoaded', function() {
             ripple.remove();
         }, 600);
 
-        // Add button-specific actions here
+        
         if (button.classList.contains('cta-btn') || button.textContent.includes('Hire')) {
-            // Scroll to contact section or show contact modal
+            
             const contactSection = document.querySelector('#contact');
             if (contactSection) {
                 contactSection.scrollIntoView({ behavior: 'smooth' });
             } else {
-                // Fallback: show alert or modal
+                
                 showNotification('Contact section coming soon!', 'info');
             }
         } else if (button.textContent.includes('Download CV')) {
@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <span>${message}</span>
         `;
         
-        // Add notification styles
+        
         Object.assign(notification.style, {
             position: 'fixed',
             top: '20px',
@@ -246,12 +246,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.body.appendChild(notification);
         
-        // Animate in
+        
         setTimeout(() => {
             notification.style.transform = 'translateX(0)';
         }, 100);
         
-        // Auto remove
+        
         setTimeout(() => {
             notification.style.transform = 'translateX(100%)';
             setTimeout(() => {
@@ -260,14 +260,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
 
-    // Keyboard Navigation
+    
     function handleKeyboard(event) {
-        // Close mobile menu on Escape
+        
         if (event.key === 'Escape' && navMenu?.classList.contains('active')) {
             toggleMobileMenu();
         }
         
-        // Navigate with arrow keys when menu is open
+        
         if (navMenu?.classList.contains('active') && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
             event.preventDefault();
             const currentActive = document.querySelector('.nav-link:focus') || document.querySelector('.nav-link.active');
@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Performance Optimized Scroll Handler
+    
     let ticking = false;
     function optimizedScrollHandler() {
         if (!ticking) {
@@ -297,24 +297,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Debounced Resize Handler
+    
     let resizeTimeout;
     function handleResize() {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
-            // Close mobile menu on resize to larger screen
+            
             if (window.innerWidth >= 769 && navMenu?.classList.contains('active')) {
                 toggleMobileMenu();
             }
         }, 250);
     }
 
-    // Initialize Active Navigation from Hash
+    
     function initializeActiveNav() {
         const hash = window.location.hash || '#home';
         updateActiveNavLink(hash);
         
-        // Smooth scroll to section if hash exists
+        
         if (hash !== '#home') {
             setTimeout(() => {
                 const targetElement = document.querySelector(hash);
@@ -329,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Event Listeners
+    
     hamburger?.addEventListener('click', toggleMobileMenu);
     navLinks.forEach(link => {
         link.addEventListener('click', smoothScroll);
@@ -341,14 +341,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Button event listeners
+    
     [ctaBtn, ...hireBtns, aboutBtn].forEach(btn => {
         if (btn) {
             btn.addEventListener('click', handleButtonClick);
         }
     });
 
-    // Social icons hover effects
+    
     socialIcons.forEach(icon => {
         icon.addEventListener('mouseenter', function() {
             this.style.transform = 'translateY(-3px) scale(1.1)';
@@ -359,13 +359,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Global event listeners
+    
     window.addEventListener('scroll', optimizedScrollHandler);
     window.addEventListener('resize', handleResize);
     window.addEventListener('hashchange', initializeActiveNav);
     document.addEventListener('keydown', handleKeyboard);
 
-    // Handle clicks outside mobile menu
+    
     document.addEventListener('click', (event) => {
         if (navMenu?.classList.contains('active') && 
             !navMenu.contains(event.target) && 
@@ -374,9 +374,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Initialize everything
+    
     function init() {
-        // Start typewriter effect
+        
         if (heroSubtitle) {
             typeWriter();
         }
@@ -428,7 +428,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize the application
     init();
 
-    // Add CSS for ripple effect and notifications
+    
     const style = document.createElement('style');
     style.textContent = `
         .ripple {
@@ -518,4 +518,5 @@ window.addEventListener('error', (event) => {
 window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled Promise Rejection:', event.reason);
 });
+
 
