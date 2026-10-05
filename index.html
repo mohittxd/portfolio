@@ -162,32 +162,14 @@
         </div>
     </div>
 
-    <!-- Cinematic scene transition — full-screen portal -->
-    <div class="scene-transition" aria-hidden="true">
-        <span class="st-dark"></span>
-        <span class="st-portal"></span>
-        <span class="st-portal-glow"></span>
-        <div class="st-fx">
-            <span class="st-rays"></span>
-            <span class="st-scan"></span>
-            <span class="st-particles">
-                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-            </span>
-            <span class="st-fragments">
-                <b>01</b><b>{ }</b><b>&lt;/&gt;</b><b>const</b><b>0x2F</b><b>[ ]</b><b>fn( )</b><b>AI</b>
-            </span>
-            <span class="st-citylights">
-                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-            </span>
-        </div>
-        <span class="st-route" id="st-route"></span>
-    </div>
-
     <!-- Custom cursor (desktop only, enabled via JS) -->
     <div class="cursor-ring" id="cursor-ring" aria-hidden="true"><span class="cursor-label" id="cursor-label"></span></div>
     <div class="cursor-dot" id="cursor-dot" aria-hidden="true"></div>
     <!-- Click particle burst layer (populated and emptied by JS on fine-pointer devices) -->
     <div class="cursor-fx" id="cursor-fx" aria-hidden="true"></div>
+
+    <!-- Full-screen digital data-rain transition overlay (reused every navigation) -->
+    <canvas id="matrix-transition" class="matrix-transition" aria-hidden="true"></canvas>
 
     <!-- Cinematic background FX -->
     <div class="fx-ambient" aria-hidden="true"></div>
@@ -1051,5 +1033,6 @@
     </div>
 
     <script src="script.js"></script>
+    <script src="matrix-transition.js"></script>
 </body>
 </html>

@@ -72,7 +72,7 @@ img { max-width: 100%; display: block; }
 
 /* Page content is stacked above the decorative .bg layer (z-index: 0).
    Everything fixed/sticky in the document already carries its own
-   z-index (header 1000, overlay 3200, cursor 3500+), so raising only
+   z-index (header 1000, overlay 3200, loader 5000, cursor 5498+), so raising only
    the content wrapper is enough — no other stacking context changes. */
 main {
     position: relative;
@@ -3899,258 +3899,6 @@ body.has-spotlight .fx-spotlight { opacity: 1; }
 .page.active .reveal.visible { animation: pageIn 0.5s var(--ease) both; }
 
 /* ==========================================================================
-   Cinematic scene transition — full-screen portal
-   ========================================================================== */
-.scene-transition {
-    position: fixed;
-    inset: 0;
-    z-index: 3000;
-    pointer-events: none;
-    visibility: hidden;
-}
-
-body.scene-in .scene-transition,
-body.scene-out .scene-transition { visibility: visible; }
-
-/* 1 · Dark rising glass layer */
-.st-dark {
-    position: absolute;
-    inset: 0;
-    background:
-        radial-gradient(90% 70% at 50% 78%, rgba(30, 24, 66, 0.985), rgba(4, 5, 12, 0.997) 75%),
-        rgba(3, 4, 10, 0.99);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    transform: scaleY(0);
-    transform-origin: bottom;
-}
-
-body.scene-in .st-dark { animation: stRise 0.42s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
-body.scene-out .st-dark { animation: stFall 0.42s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
-
-@keyframes stRise { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-@keyframes stFall { from { transform: scaleY(1); } to { transform: scaleY(0); } }
-
-/* 2 · Portal opening — a window into the next scene */
-.st-portal {
-    position: absolute;
-    inset: 0;
-    background:
-        radial-gradient(60% 42% at 50% 52%, rgba(99, 102, 241, 0.1), rgba(6, 8, 18, 0.96) 70%),
-        rgba(4, 5, 12, 0.97);
-    clip-path: circle(0% at 50% 60%);
-}
-
-body.scene-out .st-portal { animation: stPortalOpen 0.44s var(--ease) forwards; }
-body.scene-in .st-portal { animation: stPortalClose 0.4s var(--ease) forwards; }
-
-@keyframes stPortalOpen {
-    0% { clip-path: circle(0% at 50% 60%); }
-    100% { clip-path: circle(75% at 50% 60%); }
-}
-
-@keyframes stPortalClose {
-    0% { clip-path: circle(75% at 50% 60%); }
-    100% { clip-path: circle(0% at 50% 60%); }
-}
-
-/* 3 · Ambient light pouring through the portal */
-.st-portal-glow {
-    position: absolute;
-    inset: 0;
-    background:
-        radial-gradient(46% 34% at 50% 54%, rgba(129, 140, 248, 0.3), transparent 70%),
-        radial-gradient(30% 24% at 50% 54%, rgba(34, 211, 238, 0.22), transparent 75%);
-    filter: blur(12px);
-    opacity: 0;
-}
-
-body.scene-out .st-portal-glow { animation: stGlow 0.44s ease-out forwards; }
-body.scene-in .st-portal-glow { animation: stGlowOut 0.4s ease-out forwards; }
-
-@keyframes stGlow {
-    0% { opacity: 0; }
-    55% { opacity: 1; }
-    100% { opacity: 0.9; }
-}
-
-@keyframes stGlowOut {
-    0% { opacity: 0.9; }
-    100% { opacity: 0; }
-}
-
-/* 4 · Environmental FX inside the transition */
-.st-fx { position: absolute; inset: 0; overflow: hidden; opacity: 0; }
-
-body.scene-out .st-fx { animation: stFxIn 0.45s ease-out forwards; }
-body.scene-in .st-fx { animation: stFxOut 0.35s ease-out forwards; }
-
-@keyframes stFxIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes stFxOut { from { opacity: 1; } to { opacity: 0; } }
-
-/* Soft diagonal light rays from the portal */
-.st-rays {
-    position: absolute;
-    inset: -20%;
-    background:
-        linear-gradient(115deg, transparent 42%, rgba(129, 140, 248, 0.1) 50%, transparent 58%),
-        linear-gradient(105deg, transparent 46%, rgba(34, 211, 238, 0.08) 54%, transparent 62%);
-    transform: translateX(-30%);
-}
-
-body.scene-out .st-rays { animation: stRaysSweep 0.9s ease-out forwards; }
-
-@keyframes stRaysSweep {
-    from { transform: translateX(-30%); opacity: 0; }
-    30% { opacity: 1; }
-    to { transform: translateX(30%); opacity: 0; }
-}
-
-/* Faint scanline texture */
-.st-scan {
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(180deg, rgba(160, 190, 255, 0.05) 0 1px, transparent 1px 4px);
-    opacity: 0.6;
-}
-
-/* Drifting particles */
-.st-particles i {
-    position: absolute;
-    bottom: -12px;
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: rgba(150, 200, 255, 0.75);
-    box-shadow: 0 0 8px rgba(34, 211, 238, 0.7);
-    opacity: 0;
-}
-
-.st-particles i:nth-child(1) { left: 6%;  animation: stParticle 1s ease-out 0.05s forwards; }
-.st-particles i:nth-child(2) { left: 17%; animation: stParticle 0.9s ease-out 0.12s forwards; }
-.st-particles i:nth-child(3) { left: 28%; animation: stParticle 1.05s ease-out 0.02s forwards; }
-.st-particles i:nth-child(4) { left: 38%; animation: stParticle 0.95s ease-out 0.18s forwards; }
-.st-particles i:nth-child(5) { left: 49%; animation: stParticle 1.1s ease-out 0.08s forwards; }
-.st-particles i:nth-child(6) { left: 60%; animation: stParticle 0.92s ease-out 0.15s forwards; }
-.st-particles i:nth-child(7) { left: 71%; animation: stParticle 1.02s ease-out 0.04s forwards; }
-.st-particles i:nth-child(8) { left: 82%; animation: stParticle 0.98s ease-out 0.2s forwards; }
-.st-particles i:nth-child(9) { left: 88%; animation: stParticle 0.94s ease-out 0.13s forwards; }
-.st-particles i:nth-child(10) { left: 94%; animation: stParticle 1.06s ease-out 0.1s forwards; }
-
-@keyframes stParticle {
-    0% { opacity: 0; transform: translateY(0) scale(0.7); }
-    15% { opacity: 0.9; }
-    100% { opacity: 0; transform: translateY(-46vh) scale(1.15); }
-}
-
-/* Floating code fragments */
-.st-fragments b {
-    position: absolute;
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    letter-spacing: 0.08em;
-    color: rgba(165, 200, 255, 0.5);
-    text-shadow: 0 0 10px rgba(99, 102, 241, 0.55);
-    opacity: 0;
-    white-space: nowrap;
-}
-
-.st-fragments b:nth-child(1) { left: 8%;  top: 24%; animation: stFragment 1s ease-out 0.06s forwards; }
-.st-fragments b:nth-child(2) { left: 22%; top: 62%; animation: stFragment 1s ease-out 0.16s forwards; }
-.st-fragments b:nth-child(3) { left: 36%; top: 34%; animation: stFragment 1s ease-out 0.02s forwards; }
-.st-fragments b:nth-child(4) { left: 50%; top: 70%; animation: stFragment 1s ease-out 0.22s forwards; }
-.st-fragments b:nth-child(5) { left: 64%; top: 28%; animation: stFragment 1s ease-out 0.1s forwards; }
-.st-fragments b:nth-child(6) { left: 76%; top: 56%; animation: stFragment 1s ease-out 0.18s forwards; }
-.st-fragments b:nth-child(7) { left: 86%; top: 40%; animation: stFragment 1s ease-out 0.03s forwards; }
-.st-fragments b:nth-child(8) { left: 44%; top: 16%; animation: stFragment 1s ease-out 0.14s forwards; }
-
-@keyframes stFragment {
-    0% { opacity: 0; transform: translateY(26px) scale(0.92); }
-    25% { opacity: 1; }
-    100% { opacity: 0; transform: translateY(-30px) scale(1); }
-}
-
-/* Blurred night-city light dots */
-.st-citylights i {
-    position: absolute;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: rgba(255, 205, 130, 0.75);
-    filter: blur(1.5px);
-    box-shadow: 0 0 12px rgba(255, 195, 110, 0.8);
-    opacity: 0;
-}
-
-.st-citylights i:nth-child(1) { left: 4%;  bottom: 9%;  animation: stCityGlow 1s ease-out 0.1s forwards; }
-.st-citylights i:nth-child(2) { left: 13%; bottom: 5%;  animation: stCityGlow 1s ease-out 0.02s forwards; }
-.st-citylights i:nth-child(3) { left: 24%; bottom: 11%; animation: stCityGlow 1s ease-out 0.18s forwards; }
-.st-citylights i:nth-child(4) { left: 33%; bottom: 6%;  animation: stCityGlow 1s ease-out 0.06s forwards; }
-.st-citylights i:nth-child(5) { left: 45%; bottom: 10%; animation: stCityGlow 1s ease-out 0.14s forwards; }
-.st-citylights i:nth-child(6) { left: 56%; bottom: 5%;  animation: stCityGlow 1s ease-out 0.03s forwards; }
-.st-citylights i:nth-child(7) { left: 66%; bottom: 12%; animation: stCityGlow 1s ease-out 0.19s forwards; }
-.st-citylights i:nth-child(8) { left: 75%; bottom: 7%;  animation: stCityGlow 1s ease-out 0.08s forwards; }
-.st-citylights i:nth-child(9) { left: 85%; bottom: 10%; animation: stCityGlow 1s ease-out 0.16s forwards; }
-.st-citylights i:nth-child(10) { left: 94%; bottom: 6%; animation: stCityGlow 1s ease-out 0.05s forwards; }
-
-@keyframes stCityGlow {
-    0% { opacity: 0; transform: translateY(6px); }
-    30% { opacity: 0.95; }
-    100% { opacity: 0; transform: translateY(-4px); }
-}
-
-/* 5 · Destination label flicker */
-.st-route {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    font-family: var(--font-mono);
-    font-size: clamp(0.95rem, 2.4vw, 1.3rem);
-    font-weight: 500;
-    letter-spacing: 0.42em;
-    text-transform: uppercase;
-    color: rgba(225, 235, 255, 0.92);
-    text-shadow: 0 0 24px rgba(34, 211, 238, 0.6);
-    opacity: 0;
-}
-
-body.scene-out .st-route { animation: stRouteFlicker 0.5s ease-out 0.12s forwards; }
-body.scene-in .st-route { animation: stRouteOut 0.3s ease-out forwards; }
-
-@keyframes stRouteFlicker {
-    0% { opacity: 0; }
-    12% { opacity: 0.9; }
-    18% { opacity: 0.35; }
-    26% { opacity: 1; }
-    100% { opacity: 0.85; }
-}
-
-@keyframes stRouteOut {
-    from { opacity: 0.85; }
-    to { opacity: 0; }
-}
-
-/* Old page dims + blurs as the scene closes in */
-body.scene-in .page.active {
-    filter: blur(7px) brightness(0.55);
-    opacity: 0.5;
-    transition: filter 0.35s ease, opacity 0.35s ease;
-}
-
-body.scene-out .page.active { filter: blur(0); opacity: 1; }
-
-/* Reduced motion: fast, simple crossfade, no FX layer */
-@media (prefers-reduced-motion: reduce) {
-    .st-dark, .st-portal, .st-portal-glow, .st-rays, .st-route { animation-duration: 0.01s !important; animation-delay: 0s !important; }
-    .st-fx { display: none; }
-}
-
-/* Page blur-out during transition (legacy hooks, kept for no-JS fallback) */
-body.wipe-in .page.active { filter: blur(6px); opacity: 0.6; transition: filter 0.25s ease, opacity 0.25s ease; }
-body.wipe-out .page.active { filter: blur(0); opacity: 1; }
-
-/* ==========================================================================
    Loader
    ========================================================================== */
 .loader {
@@ -4206,6 +3954,21 @@ body.booted .loader { opacity: 0; visibility: hidden; pointer-events: none; }
 @keyframes loaderFill { to { transform: scaleX(1); } }
 
 /* ==========================================================================
+   Futuristic digital matrix transition — full-screen data-rain canvas
+   Sits above every other layer (header 1000, project overlay 3200,
+   loader 5000, cursor 5498+) but never intercepts pointer events.
+   ========================================================================== */
+.matrix-transition {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9000;
+    display: none;
+    pointer-events: none;
+}
+
+/* ==========================================================================
    Custom cursor + trail
    ========================================================================== */
 .cursor-ring,
@@ -4220,11 +3983,11 @@ body.cursor-on .cursor-trail { display: block; }
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 3500;
+    z-index: 5500;
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--accent-2);
+    background: #22d3ee;
     box-shadow: 0 0 10px rgba(34, 211, 238, 0.9);
     pointer-events: none;
     will-change: transform;
@@ -4234,17 +3997,17 @@ body.cursor-on .cursor-trail { display: block; }
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 3499;
+    z-index: 5499;
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    border: 1.5px solid rgba(167, 139, 250, 0.55);
+    border: 1.5px solid rgba(167, 139, 250, 0.8);
     display: flex;
     align-items: center;
     justify-content: center;
     pointer-events: none;
-    transition: width 0.22s var(--ease), height 0.22s var(--ease),
-                border-color 0.22s ease, background 0.22s ease;
+    transition: width 0.2s ease, height 0.2s ease,
+                border-color 0.2s ease, background 0.2s ease;
     will-change: transform;
 }
 
@@ -4260,24 +4023,33 @@ body.cursor-on .cursor-ring { display: flex; }
     transition: opacity 0.15s ease;
 }
 
-.cursor-ring[data-state="btn"] { width: 48px; height: 48px; border-color: rgba(34, 211, 238, 0.8); }
-.cursor-ring[data-state="nav"] { width: 26px; height: 26px; border-color: rgba(34, 211, 238, 0.95); box-shadow: 0 0 14px rgba(34, 211, 238, 0.4); }
-.cursor-ring[data-state="view"] { width: 68px; height: 68px; border-color: rgba(34, 211, 238, 0.85); background: rgba(10, 14, 28, 0.55); backdrop-filter: blur(2px); }
+/* Hover interaction — any link, button, nav item or content/project card
+   grows the ring 38px → 64px and adds a faint cyan wash (0.2s transition).
+   Leaving the target drops data-state, restoring the plain 38px ring. */
+.cursor-ring[data-state="btn"],
+.cursor-ring[data-state="nav"],
+.cursor-ring[data-state="view"],
+.cursor-ring[data-state="github"],
+.cursor-ring[data-state="explore"],
+.cursor-ring[data-state="open"],
+.cursor-ring[data-state="skill"],
+.cursor-ring[data-state="interactive"] {
+    width: 64px;
+    height: 64px;
+    background: rgba(34, 211, 238, 0.1);
+}
+
 .cursor-ring[data-state="view"] .cursor-label,
 .cursor-ring[data-state="github"] .cursor-label,
 .cursor-ring[data-state="explore"] .cursor-label,
 .cursor-ring[data-state="open"] .cursor-label,
 .cursor-ring[data-state="skill"] .cursor-label { opacity: 1; }
-.cursor-ring[data-state="github"] { width: 74px; height: 74px; border-color: rgba(165, 180, 252, 0.9); background: rgba(10, 14, 28, 0.55); }
-.cursor-ring[data-state="explore"] { width: 76px; height: 76px; border-color: rgba(129, 140, 248, 0.9); background: rgba(10, 14, 28, 0.55); backdrop-filter: blur(2px); }
-.cursor-ring[data-state="open"] { width: 60px; height: 60px; border-color: rgba(165, 180, 252, 0.9); background: rgba(10, 14, 28, 0.5); }
-.cursor-ring[data-state="skill"] { width: 64px; height: 64px; border-color: rgba(34, 211, 238, 0.9); background: rgba(8, 16, 28, 0.5); }
 
 .cursor-trail {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 3498;
+    z-index: 5498;
     width: 5px;
     height: 5px;
     border-radius: 50%;
@@ -4288,6 +4060,15 @@ body.cursor-on .cursor-ring { display: flex; }
 
 @media (hover: none), (pointer: coarse) {
     .cursor-ring, .cursor-dot, .cursor-trail { display: none !important; }
+}
+
+/* Custom cursor is enabled only on devices with a fine pointer. Everywhere
+   else (touch / coarse) the elements above stay display:none and the native
+   browser cursor is left untouched. */
+@media (pointer: fine) {
+    body.cursor-on .cursor-dot,
+    body.cursor-on .cursor-trail { display: block; }
+    body.cursor-on .cursor-ring { display: flex; }
 }
 
 /* ==========================================================================
@@ -4620,9 +4401,6 @@ body.cursor-on .cursor-ring { display: flex; }
     .page.active .hero-actions,
     .page.active .contact-actions,
     .page.active .reveal.visible { animation: none; }
-    body.wipe-in .page.active { filter: none; opacity: 1; }
-    .wipe-streak, .wipe-glow { display: none; }
-    .wipe-panel { animation-duration: 0.01s !important; transition-duration: 0.01s !important; }
     .float-card, .anime-scene [data-depth] { animation: none; transition: none; transform: none; }
     .anime-scene .scene-monitor[data-depth],
     .anime-scene .scene-glow[data-depth] { transform: translateX(-50%); }
@@ -4650,22 +4428,15 @@ body.cursor-on .cursor-ring { display: flex; }
     body.cursor-on * { cursor: none !important; }
 }
 
-/* Hover fill for generic interactive targets (64px ring, faint cyan wash) */
-.cursor-ring[data-state="interactive"] {
-    width: 64px;
-    height: 64px;
-    border-color: rgba(167, 139, 250, 0.75);
-    background: rgba(34, 211, 238, 0.10);
-}
-
-/* Existing states keep their sizes, gain a restrained cyan tint */
-.cursor-ring[data-state="btn"] { background: rgba(34, 211, 238, 0.08); }
+/* Hover fill for generic interactive targets (64px ring, faint cyan wash) —
+   handled by the unified .cursor-ring[data-state=...] rule in the cursor
+   block above so every state behaves identically. */
 
 /* Particle burst layer — empty by default, filled per click, always inert */
 .cursor-fx {
     position: fixed;
     inset: 0;
-    z-index: 3501;
+    z-index: 5501;
     pointer-events: none;
 }
 

@@ -1,6 +1,6 @@
 /* ==========================================================================
    Mohit Verma — Portfolio
-   Hash router + cinematic transitions + interactive FX (vanilla JS)
+   Hash router + interactive FX (vanilla JS)
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
@@ -33,8 +33,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const pageEl = (name) => document.getElementById('page-' + name);
     let current = null;
-    let transitioning = false;
-    let queued = null;
 
     function parseRoute() {
         const h = location.hash.replace(/^#\/?/, '').split('?')[0];
@@ -64,43 +62,33 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function navigate(name, animate) {
-        if (name === current) return;
-        if (transitioning) { queued = name; return; }
-
-        if (!animate || reduceMotion.matches) {
-            showPageInstant(name);
+    function navigate(name) {
+        // Futuristic matrix data-rain transition (matrix-transition.js).
+        // A running transition is never restarted — it is only retargeted,
+        // so the hash and the visible section can never drift apart.
+        const matrix = window.MatrixTransition;
+        if (matrix && matrix.active) {
+            matrix.setTarget(name);
             return;
         }
-
-        transitioning = true;
-        const routeEl = document.getElementById('st-route');
-        if (routeEl) routeEl.textContent = name.toUpperCase();
-        body.classList.add('scene-in');
-
-        // Screen fully covered by the rising scene → swap content behind the portal
-        setTimeout(() => {
-            showPageInstant(name);
-            body.classList.remove('scene-in');
-            body.classList.add('scene-out');
-        }, 430);
-
-        // New scene revealed — user can interact immediately
-        setTimeout(() => {
-            body.classList.remove('scene-out');
-            transitioning = false;
-            if (queued) {
-                const next = queued;
-                queued = null;
-                navigate(next, true);
-            }
-        }, 880);
+        if (name === current) return;
+        if (matrix && !reduceMotion.matches) {
+            matrix.transitionTo(name);
+            return;
+        }
+        showPageInstant(name);
     }
+
+    // Hooks consumed by the matrix transition module.
+    window.__matrixCurrentSection = () => current;
+    window.__matrixSwitchSection = (name) => {
+        if (name) showPageInstant(name);
+    };
 
     function handleHashChange() {
         if (navMenu && navMenu.classList.contains('active')) toggleMobileMenu();
         if (window.__closeProjectOverlay) window.__closeProjectOverlay();
-        navigate(parseRoute(), true);
+        navigate(parseRoute());
     }
 
     /* ------------------------------------------------------------------
@@ -323,7 +311,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const p = document.createElement('i');
                 p.className = 'cursor-particle' + (i % 2 ? ' p-purple' : '');
                 const angle = (Math.PI * 2 * i) / PARTICLES + (Math.random() - 0.5) * 0.6;
-                const dist = 18 + Math.random() * 30;
+                const dist = 40 + Math.random() * 30;
                 p.style.setProperty('--bx', x.toFixed(1) + 'px');
                 p.style.setProperty('--by', y.toFixed(1) + 'px');
                 p.style.setProperty('--tx', (x + Math.cos(angle) * dist).toFixed(1) + 'px');
@@ -356,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const navHit = t.closest('.nav-link, .cta-btn, .hamburger');
             const ghHit = t.closest('a[href*="github.com"]');
             const imgHit = t.closest('[data-cursor="img"], .po-visual');
-            const viewHit = t.closest('.project-card, .project-featured, .timeline-card, [data-cursor="view"]');
+            const viewHit = t.closest('.project-card, .project-featured, .timeline-card, .exp-card, .info-card, .highlight-card, .service-card, .skill-category, .building-card, [data-cursor="view"]');
             const skillHit = t.closest('.skill-badge, .tech-chip');
             const btnHit = t.closest('button, .btn, [data-magnetic]');
             const openHit = t.closest('a');
